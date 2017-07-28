@@ -50,6 +50,11 @@ type Server struct {
 	tick time.Duration
 	// shutdown is the time from when a node is cordoned to when it can be shut down when empty
 	shutdown time.Duration
+	// maxNodeNumber is the maximum number of nodes that can exist in this cluster. Defaults to 10.
+	maxNodeNumber int64
+	// minNodeNumber is the minimum number of nodes that ever exist in this cluster. Defaults to 10.
+	// this is separate from bufferCount.
+	minNodeNumber int64
 }
 
 // handler is the extended http.HandleFunc to provide context for this application
@@ -71,7 +76,8 @@ func NewServer(hostAddr, nodeSelector, cpuRequest string, opts ...Option) (*Serv
 	}
 
 	s := &Server{nodeSelector: nodeSelector, cpuRequest: q.MilliValue(),
-		bufferCount: 5, tick: 10 * time.Second, shutdown: time.Minute}
+		bufferCount: 5, tick: 10 * time.Second, shutdown: time.Minute,
+		minNodeNumber: 1, maxNodeNumber: 10}
 	r := s.newHandler()
 
 	s.srv = &http.Server{
@@ -109,6 +115,10 @@ func ServerShutdown(sd time.Duration) Option {
 		s.shutdown = sd
 	}
 }
+
+// TODO: write option function for this
+
+// TODO: write tests for the option functions.
 
 // Start starts the HTTP server on the given port
 func (s *Server) Start() error {

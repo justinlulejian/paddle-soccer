@@ -45,6 +45,7 @@ func (s Server) scaleNodes() error {
 
 	available := nl.cpuRequestsAvailable()
 	log.Printf("[Info][scaleNodes] CPU Requests blocks of %vm. Available: %v. Requires a buffer of %v", s.cpuRequest, available, s.bufferCount)
+	// TODO: make sure there is always a min number of nodes
 	if available < s.bufferCount {
 		finished, err := s.uncordonNodes(nl, s.bufferCount-available)
 		// short circuit if uncordoning means we have enough buffer now
@@ -80,6 +81,8 @@ func (s Server) increaseNodes(nl *nodeList, gameNumber int64) error {
 		log.Printf("[Warn][IncreaseNodes] Cannot increase nodes by a 0 or negative number. %v", gameNumber)
 		return nil
 	}
+
+	// TODO: make sure increase nodes doesn't go over max
 
 	log.Printf("[Info][increaseNodes] Attempting to increase nodelist of %v, by %v cpu blocks", len(nl.nodes.Items), gameNumber)
 
@@ -187,6 +190,7 @@ func (s Server) cordonNodes(nl *nodeList, gameNumber int64) error {
 // deleteCordonedNodes will delete a cordoned node if it
 // the time since it was cordoned has expired
 func (s Server) deleteCordonedNodes() error {
+	// TODO: make sure delete doesn't got past the min number
 	nl, err := s.newNodeList()
 	if err != nil {
 		return err
