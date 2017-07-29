@@ -90,7 +90,8 @@ func NewServer(hostAddr, nodeSelector, cpuRequest string, opts ...Option) (*Serv
 		o(s)
 	}
 
-	log.Printf("[Info][Server] bufferCount: %v, tick: %v, shutdown: %v", s.bufferCount, s.tick, s.shutdown)
+	log.Printf("[Info][Server] bufferCount: %v, tick: %v, shutdown: %v, min/max node count: %v/%v",
+		s.bufferCount, s.tick, s.shutdown, s.minNodeNumber, s.maxNodeNumber)
 
 	return s, nil
 }
@@ -116,9 +117,19 @@ func ServerShutdown(sd time.Duration) Option {
 	}
 }
 
-// TODO: write option function for this
+// ServerMinNodeNumber sets the minimum node number that can be in the cluster
+func ServerMinNodeNumber(min int64) Option {
+	return func(s *Server) {
+		s.minNodeNumber = min
+	}
+}
 
-// TODO: write tests for the option functions.
+// ServerMaxNodeNumber sets the maximum node number that can be in the cluster
+func ServerMaxNodeNumber(max int64) Option {
+	return func(s *Server) {
+		s.maxNodeNumber = max
+	}
+}
 
 // Start starts the HTTP server on the given port
 func (s *Server) Start() error {
