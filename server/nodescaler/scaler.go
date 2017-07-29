@@ -43,9 +43,10 @@ func (s Server) scaleNodes() error {
 		return err
 	}
 
+	// TODO: make sure there is always a min number of nodes
+
 	available := nl.cpuRequestsAvailable()
 	log.Printf("[Info][scaleNodes] CPU Requests blocks of %vm. Available: %v. Requires a buffer of %v", s.cpuRequest, available, s.bufferCount)
-	// TODO: make sure there is always a min number of nodes
 	if available < s.bufferCount {
 		finished, err := s.uncordonNodes(nl, s.bufferCount-available)
 		// short circuit if uncordoning means we have enough buffer now
@@ -138,6 +139,7 @@ func (s Server) uncordonNodes(nl *nodeList, gameNumber int64) (bool, error) {
 		cpuRequest = cpuRequest - available
 		log.Printf("[Info][uncordonNodes] %v cpuRequest remaining after uncordoning node, and adding %v cpu", cpuRequest, available)
 
+		// TODO: make sure you aren't under the min number of nodes
 		if cpuRequest <= 0 {
 			return true, nil
 		}
